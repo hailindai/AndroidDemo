@@ -12,7 +12,7 @@ import java.util.Map;
  * </pre>
  */
 
-public class BaseModel<T> {
+public abstract class BaseModel<T> {
     protected String[] mParams;
 
     public BaseModel params(String... args){
@@ -20,9 +20,7 @@ public class BaseModel<T> {
         return this;
     }
 
-    public void execute(BaseCallback<T> callback){
-
-    }
+    public abstract void execute(BaseCallback<T> callback);
 
     public void get(String url,BaseCallback<T> callback){
 

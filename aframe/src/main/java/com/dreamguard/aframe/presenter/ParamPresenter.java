@@ -6,6 +6,7 @@ import com.dreamguard.aframe.base.BasePresenter;
 import com.dreamguard.aframe.helper.DiskCacheManager;
 import com.dreamguard.aframe.base.DataModel;
 import com.dreamguard.aframe.model.ParamModel;
+import com.dreamguard.aframe.model.RegCodeModel;
 import com.dreamguard.aframe.view.ParamView;
 
 /**
@@ -25,11 +26,10 @@ public class ParamPresenter extends BasePresenter<ParamView> {
         }
         getView().showLoading();
 
-        DataModel.request(ParamModel.class)
-                .post("", null, new BaseCallback<String>() {
+        DataModel.request(RegCodeModel.class)
+                .execute(new BaseCallback<String>() {
                     @Override
                     public void onSuccess(String data) {
-                        new DiskCacheManager("K3DGuide").put("param",data);
                         if(isViewAttached()){
                             getView().showData(data);
                         }
@@ -38,8 +38,7 @@ public class ParamPresenter extends BasePresenter<ParamView> {
                     @Override
                     public void onFailure(String message) {
                         if(isViewAttached()){
-//                            getView().showError(message);
-                            getView().showToast(new DiskCacheManager("K3DGuide").getString("param"));
+                            getView().showError(message);
                             getView().hideLoading();
                         }
                     }

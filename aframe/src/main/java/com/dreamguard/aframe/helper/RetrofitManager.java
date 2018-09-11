@@ -1,7 +1,7 @@
 package com.dreamguard.aframe.helper;
 
 import com.dreamguard.aframe.AFrame;
-import com.dreamguard.aframe.api.ParamServiceApi;
+import com.dreamguard.aframe.api.ServiceApi;
 import com.dreamguard.aframe.utils.AppContextUtil;
 import com.dreamguard.aframe.utils.NetUtil;
 
@@ -37,14 +37,14 @@ public class RetrofitManager {
     //查询网络的Cache-Control设置，头部Cache-Control设为max-age=0时则不会使用缓存而请求服务器
     public static final String CACHE_CONTROL_NETWORK = "max-age=0";
     private static OkHttpClient mOkHttpClient;
-    private final ParamServiceApi paramServiceApi;
+    private final ServiceApi serviceApi;
 
     public static RetrofitManager builder() {
         return new RetrofitManager();
     }
 
-    public ParamServiceApi getService() {
-        return paramServiceApi;
+    public ServiceApi getService() {
+        return serviceApi;
     }
 
     private RetrofitManager() {
@@ -57,7 +57,7 @@ public class RetrofitManager {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        paramServiceApi = retrofit.create(ParamServiceApi.class);
+        serviceApi = retrofit.create(ServiceApi.class);
     }
 
     private void initOkHttpClient() {
@@ -71,10 +71,7 @@ public class RetrofitManager {
 
                     mOkHttpClient = new OkHttpClient.Builder()
                             .cache(cache)
-//                            .addInterceptor(mRewriteCacheControlInterceptor)
-//                            .addNetworkInterceptor(mRewriteCacheControlInterceptor)
-//                            .addInterceptor(interceptor)
-//                            .addNetworkInterceptor(new StethoInterceptor())
+                            .addInterceptor(mHeaderInterceptor)
                             .retryOnConnectionFailure(true)
                             .connectTimeout(15, TimeUnit.SECONDS)
                             .build();
@@ -82,6 +79,19 @@ public class RetrofitManager {
             }
         }
     }
+
+    private Interceptor mHeaderInterceptor = new Interceptor() {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request()
+                    .newBuilder()
+                    .addHeader("Content-Type", "application/json;charset=UTF-8")
+                    .addHeader("X-Bmob-Application-Id", "ee30092d6d7e48447c167d57cfb95798")
+                    .addHeader("X-Bmob-REST-API-Key", "74283793b2edf2f1370ba5b3320cbaa1")
+                    .build();
+            return chain.proceed(request);
+        }
+    };
 
     // 云端响应头拦截器，用来配置缓存策略
     private Interceptor mRewriteCacheControlInterceptor = new Interceptor() {
